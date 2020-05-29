@@ -53,11 +53,6 @@ namespace RestEase.Implementation.Emission
             throw new ImplementationCreationException(DiagnosticCode.EventsNotAllowed, "Interfaces must not have any events");
         }
 
-        public void ReportRequesterPropertyMustHaveZeroAttributes(PropertyModel property, List<AttributeModel> attributes)
-        {
-            throw new ImplementationCreationException($"{nameof(IRequester)} property {property.PropertyInfo.Name} must not have the following attributes: {string.Join(", ", attributes.Select(x => x.AttributeName))}");
-        }
-
         public void ReportPropertyMustHaveOneAttribute(PropertyModel property)
         {
             throw new ImplementationCreationException(DiagnosticCode.PropertyMustHaveOneAttribute, $"Property {property.PropertyInfo.Name} must have exactly one attribute");
@@ -71,6 +66,11 @@ namespace RestEase.Implementation.Emission
         public void ReportPropertyMustBeReadWrite(PropertyModel property)
         {
             throw new ImplementationCreationException(DiagnosticCode.PropertyMustBeReadWrite, $"Property {property.PropertyInfo.Name} must have a getter and a setter");
+        }
+
+        public void ReportRequesterPropertyMustHaveZeroAttributes(PropertyModel property, List<AttributeModel> attributes)
+        {
+            throw new ImplementationCreationException(DiagnosticCode.RequesterPropertyMustHaveZeroAttributes, $"{nameof(IRequester)} property {property.PropertyInfo.Name} must not have the following attributes: {string.Join(", ", attributes.Select(x => x.AttributeName))}");
         }
 
         public void ReportMultipleRequesterProperties(PropertyModel property)
@@ -115,9 +115,19 @@ namespace RestEase.Implementation.Emission
             throw new ImplementationCreationException(DiagnosticCode.MissingPlaceholderForPathParameter, $"Method '{method.MethodInfo.Name}': unable to find to find a placeholder {{{placeholder}}} for the path parameter '{placeholder}'");
         }
 
-        public void ReportMultipleHttpRequestMessagePropertiesForKey(MethodModel method, string key, IEnumerable<ParameterModel> _)
+        public void ReportMultipleHttpRequestMessagePropertiesForKey(string key, IEnumerable<PropertyModel> _)
         {
-            throw new ImplementationCreationException($"Method '{method.MethodInfo.Name}': found more than one HTTP request message property for key {key}");
+            throw new ImplementationCreationException(DiagnosticCode.MultipleHttpRequestMessagePropertiesForKey, $"Found more than one property with a HttpRequestMessageProperty key of '{key}'");
+        }
+
+        public void ReportHttpRequestMessageParamDuplicatesPropertyForKey(MethodModel method, string key, PropertyModel property, ParameterModel parameter)
+        {
+            throw new ImplementationCreationException(DiagnosticCode.HttpRequestMessageParamDuplicatesPropertyForKey, $"Method '{method.MethodInfo.Name}': HttpRequestMessageProperty parameter '{parameter.Name}' with key '{key}' duplicates property '{property.Name}'");
+        }
+
+        public void ReportMultipleHttpRequestMessageParametersForKey(MethodModel method, string key, IEnumerable<ParameterModel> _)
+        {
+            throw new ImplementationCreationException(DiagnosticCode.MultipleHttpRequestMessageParametersForKey, $"Method '{method.MethodInfo.Name}': found more than one parameter with a HttpRequestMessageProperty key of '{key}'");
         }
 
         public void ReportParameterMustHaveZeroOrOneAttributes(MethodModel method, ParameterModel parameter, List<AttributeModel> _)
